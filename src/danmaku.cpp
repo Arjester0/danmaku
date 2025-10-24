@@ -1,10 +1,10 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h> 
+#include <raylib.h> 
 #include <stdio.h>
 #include <math.h>
 // #include <kissfft.h> 
 
 /* TODO: 
+ * [X] convert to raylib 
  * [ ] Take the data from the audio stream and put it into fft
  * [ ] Make danmaku patterns with functions based off data from fft
  * [ ] Render danmaku patterns on screen based off function results 
@@ -13,34 +13,53 @@
 void danmaku_patterns(); 
 void fft(); 
 
-int main(int argc, char* args[]) {
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO);
-    SDL_Window* window = SDL_CreateWindow( "Danmaku", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN );
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+void draw_danmaku() {
+// sprite/circle,
+// Archimedean Spiral: r = a + b(theta) 
+// \(x(t)=t\cos (t)\) \(y(t)=t\sin (t)\) for parameters 
+} 
 
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-
-    Mix_Music *music = Mix_LoadMUS("connertheme.mp3");
-    if (!music) {
-        printf("Mixer error: %s\n", Mix_GetError());
-        return 1;
-    }
+void callback(void *buffer, unsigned int frames) {
     
-    while (true) {
-        SDL_Event e;
-	Mix_PlayMusic(music, 0);
-        if (SDL_WaitEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                break;
-            }
-        }
-    }
+} 
 
-    Mix_FreeMusic(music);
-    Mix_CloseAudio();
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+
+int main(int argc, char* args[]) {
+    const int screenWidth = 400;
+    const int screenHeight = 400; 
+
+    Music test = LoadMusicStream("assets/connertheme.mp3"); 
+    PlayMusicStream(test); 
+
+    InitWindow(screenWidth, screenHeight, "danmaku"); 
+
+    SetTargetFPS(60); 
+
+    while(!WindowShouldClose()) {
+	UpdateMusicStream(test); 
+
+	if (IsKeyPressed(KEY_SPACE)) {
+	    if (IsMusicStreamPlaying(test)) {
+		PauseMusicStream(test);
+	    } else {
+		ResumeMusicStream(test); 
+	    } 
+	}
+
+	BeginDrawing();
+	    ClearBackground(RAYWHITE); 
+	    DrawText("Danmaku", 10, 10, 20, DARKGRAY); 
+
+	    // draw danmaku function
+	    draw_danmaku(); 
+
+	EndDrawing(); 
+    } 
+    
+    UnloadMusicStream(test); 
+    CloseAudioDevice(); 
+
+    CloseWindow(); 
 
     return 0;
 }
